@@ -26,7 +26,7 @@ async function addPermissions(androidManifest) {
   const permissions = [
     'android.permission.FOREGROUND_SERVICE',
     'android.permission.ACCESS_FINE_LOCATION',
-    'android.permission.ACCESS_COARSE_LOCATION'
+    'android.permission.ACCESS_COARSE_LOCATION',
   ];
 
   permissions.forEach(permission => {

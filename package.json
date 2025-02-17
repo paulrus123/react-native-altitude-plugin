@@ -1,6 +1,6 @@
 {
   "name": "react-native-altitude-plugin",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Background altitude updates on Android for Expo",
   "main": "src/index.js",
   "app.plugin.js": "app.plugin.js",
@@ -11,8 +11,8 @@
   "license": "ISC",
   "peerDependencies": {
     "expo": ">=47.0.0",
-    "react": "*",
-    "react-native": "*"
+    "react": ">=18.0.0",
+    "react-native": ">=0.71.0"
   },
   "devDependencies": {
     "@expo/config-plugins": "^7.0.0"

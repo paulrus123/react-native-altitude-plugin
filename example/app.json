@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "extra": {
+      "eas": {
+        "projectId": "a6481dab-7938-4f58-8b8f-d697620e5da0"
+      }
+    },
+    "android": {
+      "package": "com.hootcycle_paul.altitudepluginexample"
+    }
+  }
+}

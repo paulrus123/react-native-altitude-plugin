@@ -1,2 +1,4 @@
 **/.DS_Store
 react-native-altitude-plugin-*
+**/node_modules
+**/build-*

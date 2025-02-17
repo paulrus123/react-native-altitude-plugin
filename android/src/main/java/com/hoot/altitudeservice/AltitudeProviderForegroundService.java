@@ -18,7 +18,7 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
-import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.ReactApplication;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 
@@ -35,14 +35,21 @@ public class AltitudeProviderForegroundService extends Service implements Sensor
         Log.i("AltitudeProviderForegroundService", "onCreate");
         super.onCreate();
         createNotificationChannel();
-        Intent notificationIntent = new Intent(this, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this,
-                0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
+
+        // Create a basic notification intent that opens the app
+        Intent notificationIntent = getPackageManager()
+            .getLaunchIntentForPackage(getPackageName());
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+            this,
+            0,
+            notificationIntent,
+            PendingIntent.FLAG_IMMUTABLE
+        );
 
         Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("Altitude Service")
                 .setContentText("Monitoring altitude in background")
-                .setSmallIcon(android.R.drawable.ic_dialog_info)  // Using a system icon instead
+                .setSmallIcon(android.R.drawable.ic_dialog_info)
                 .setContentIntent(pendingIntent)
                 .build();
 
@@ -55,19 +62,23 @@ public class AltitudeProviderForegroundService extends Service implements Sensor
                 Log.i("AltitudeProviderForegroundService", "run");
                 float altitude = calculateAltitude();
 
-                ReactContext reactContext = ((MainApplication) getApplication()).getReactNativeHost().getReactInstanceManager().getCurrentReactContext();
+                // Get ReactContext through ReactApplication interface
+                ReactApplication reactApplication = (ReactApplication) getApplication();
+                ReactContext reactContext = reactApplication.getReactNativeHost()
+                    .getReactInstanceManager()
+                    .getCurrentReactContext();
+
                 if (reactContext != null) {
                     reactContext
                         .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                         .emit("AltitudeUpdated", altitude);
                 }
 
-                handler.postDelayed(this, 1000); // Adjust the interval as needed
+                handler.postDelayed(this, 1000);
             }
         };
         handler.post(runnable);
 
-        // Initialize sensor manager
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         pressureSensor = sensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
         
@@ -82,7 +93,6 @@ public class AltitudeProviderForegroundService extends Service implements Sensor
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        Log.i("AltitudeProviderForegroundService", "onSensorChanged");
         if (event.sensor.getType() == Sensor.TYPE_PRESSURE) {
             currentPressure = event.values[0];
         }
@@ -94,13 +104,10 @@ public class AltitudeProviderForegroundService extends Service implements Sensor
     }
 
     private float calculateAltitude() {
-        // Using the barometric formula: h = (1 - (P/P0)^0.190284) * 145366.45
-        // where P is the current pressure and P0 is the reference pressure at sea level
         return SensorManager.getAltitude(SensorManager.PRESSURE_STANDARD_ATMOSPHERE, currentPressure);
     }
 
     private void createNotificationChannel() {
-        Log.i("AltitudeProviderForegroundService", "createNotificationChannel");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel serviceChannel = new NotificationChannel(
                     CHANNEL_ID,
@@ -114,7 +121,6 @@ public class AltitudeProviderForegroundService extends Service implements Sensor
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        // Service will continue running until explicitly stopped
         return START_STICKY;
     }
 
