@@ -2,3 +2,4 @@
 react-native-altitude-plugin-*
 **/node_modules
 **/build-*
+**/.expo/
